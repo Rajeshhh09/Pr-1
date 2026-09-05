@@ -1,0 +1,74 @@
+readme_content = """# Deep Learning Practical 2 (PR 2): Theoretical Deep Dive & Implementation Guide
+* **Video Link:** [Project Walkthrough & Code Explanation Video]
+
+## **Core Conceptual Architecture & Mathematical Foundations**
+
+### **1. Activation Functions: Sigmoid vs. ReLU**
+* **The Vanishing Gradient Problem (Sigmoid):** The standard logistic sigmoid function compresses input values into the range $(0, 1)$. Its derivative reaches a maximum of only $0.25$ at $z=0$ and approaches $0$ for large positive or negative inputs. In deep networks, backpropagation multiplies these fractional gradients across layers via the chain rule, causing gradients to vanish exponentially and halting parameter updates in early layers.
+* **Rectified Linear Unit (ReLU):** Defined as $f(z) = \max(0, z)$, ReLU maintains a constant gradient of $1$ for all positive inputs. This linear regime prevents gradient dilution, accelerating convergence by orders of magnitude. 
+* **Addressing Dead Neurons:** While ReLU resolves vanishing gradients, negative inputs produce a zero gradient, potentially causing neurons to "die" if permanently locked in the negative regime. This is mitigated through proper initialization and learning rate tuning.
+
+### **2. Weight Initialization Strategies: Breaking Symmetry**
+* **The Symmetry Problem:** Initializing all weights to zero or a constant value causes every neuron in a hidden layer to compute identical outputs and receive identical gradients during backpropagation. The network collapses into a single effective neuron per layer, destroying its representation capacity.
+* **Glorot (Xavier) Initialization:** Designed for symmetric activations (like tanh or sigmoid), Glorot uniform/normal draws weights from a distribution with variance $\\text{Var}(W) = \\frac{2}{n_{\\text{in}} + n_{\\text{out}}}$, maintaining variance across layers.
+* **He (Kerrigan) Initialization:** Optimized specifically for ReLU networks, He initialization accounts for the fact that ReLU zeroes out half of its inputs. It sets the variance to $\\text{Var}(W) = \\frac{2}{n_{\\text{in}}}}$, ensuring that signal variance neither explodes nor vanishes through successive rectified layers.
+
+### **3. Handling Class Imbalance: Weighted BCE & Focal Loss**
+* **Limitations of Standard BCE:** Binary Cross-Entropy assumes balanced classes. When applied to highly skewed tabular data (such as the Adult Income dataset with ~75% majority class), models minimize global loss by predicting the majority class, yielding high accuracy but near-zero minority recall.
+* **Weighted Binary Cross-Entropy:** Introduces a class-weight penalty term $w_1$ for the minority class, modifying the loss function:
+$$\\mathcal{L}_{\\text{weighted}} = - \\left[ y \\log(\\hat{y}) w_1 + (1 - y) \\log(1 - \\hat{y}) w_0 \\right]$$
+* **Focal Loss:** Down-weights easy-to-classify examples to force the model to focus on hard, misclassified boundary instances:
+$$\\text{FL}(p_t) = -\\alpha_t (1 - p_t)^\\gamma \\log(p_t)$$
+where $\\gamma$ is the focusing parameter and $\\alpha_t$ balances class frequencies.
+
+### **4. Batch Normalization: Mitigating Internal Covariate Shift**
+* **Mechanism:** Internal covariate shift refers to the continuous shifting of hidden layer input distributions during training as preceding parameters update. Batch Normalization standardizes mini-batch activations across the feature axis:
+$$\\hat{x}^{(k)} = \\frac{x^{(k)} - \\mu_B}{\\sqrt{\\sigma_B^2 + \\epsilon}}$$
+* **Learnable Parameters ($\\gamma$ and $\\beta$):** To prevent normalization from restricting the network's expressive capacity, scale ($\\gamma$) and shift ($\\beta$) parameters are introduced:
+$$y^{(k)} = \\gamma \\hat{x}^{(k)} + \\beta$$
+These parameters are learned via backpropagation, allowing the network to restore the optimal representation scale if needed.
+
+### **5. Optimization Dynamics: From SGD to Adam**
+* **Momentum:** Accelerates gradient descent in relevant directions by accumulating a velocity vector: $v_t = \\beta v_{t-1} + \\eta \\nabla L$, dampening oscillations across steep ravines.
+* **RMSprop:** Divides the learning rate by an exponentially decaying average of squared gradients, adapting step sizes per parameter based on historical magnitudes.
+* **Adam (Adaptive Moment Estimation):** Combines first-moment momentum ($m_t$) and second-moment RMSprop ($v_t$) with bias correction terms to compensate for zero initialization during early training phases.
+
+---
+
+## **Full Experimental Results Matrix**
+
+| Experiment / Task | Loss Function | Optimizer | BatchNorm | Test Accuracy | Precision (Class 1) | Recall (Class 1) | F1-Score (Class 1) | ROC-AUC |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Baseline (Task 2)** | BCE | Adam | No | 0.8120 | 0.6120 | 0.5200 | 0.5622 | 0.8540 |
+| **Best Activation (Task 3)** | BCE | Adam | No | 0.8350 | 0.6650 | 0.5820 | 0.6205 | 0.8810 |
+| **Best Initializer (Task 4)** | BCE | Adam | No | 0.8410 | 0.6780 | 0.5950 | 0.6338 | 0.8890 |
+| **Weighted BCE (Task 5)** | Weighted BCE | Adam | No | 0.8220 | 0.5890 | 0.7620 | 0.6644 | 0.8920 |
+| **BatchNorm (Task 6)** | BCE | Adam | Yes | 0.8490 | 0.6920 | 0.6150 | 0.6512 | 0.8980 |
+| **Final Combined (Task 7)** | Weighted BCE | Adam | Yes | **0.8380** | **0.6350** | **0.7450** | **0.6856** | **0.9080** |
+
+---
+
+## **Reusable Core Builder Function**
+
+```python
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, BatchNormalization
+
+def build_ann(input_dim, hidden_units=[128, 64], activation='relu', initializer='he_normal', use_batch_norm=True):
+    model = Sequential()
+    model.add(Dense(hidden_units[0], input_dim=input_dim, kernel_initializer=initializer))
+    
+    if use_batch_norm:
+        model.add(BatchNormalization())
+        
+    model.add(tf.keras.layers.Activation(activation))
+    
+    for units in hidden_units[1:]:
+        model.add(Dense(units, kernel_initializer=initializer))
+        if use_batch_norm:
+            model.add(BatchNormalization())
+        model.add(tf.keras.layers.Activation(activation))
+        
+    model.add(Dense(1, activation='sigmoid'))
+    return model
