@@ -5,7 +5,7 @@ This project implements and evaluates neural network classifiers ranging from a 
 
 * **Dataset Source:** Scikit-Learn (`sklearn.datasets.load_breast_cancer`) — 569 samples, 30 numerical features, binary classification (Malignant vs Benign).
 * **Tools Used:** TensorFlow, Keras, Scikit-Learn, Pandas, NumPy, Matplotlib, Seaborn.
-* **Video Link:** [Project Walkthrough & Code Explanation Video]
+* **Video Link:** https://drive.google.com/file/d/1E0hMunCE4X2i-lLqQ4w4Njkh9FhGjWJa/view?usp=sharing
 
 ---
 
