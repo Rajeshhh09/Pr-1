@@ -40,7 +40,7 @@ CV_PR3/
     └── yolo_detections.png
 ```
 
-** Video Link :- https://drive.google.com/file/d/1Kizy8hlj-giOu98bY6Yxx7iEMFQVFoGr/view?usp=sharing **
+#  Video Link :- https://drive.google.com/file/d/1Kizy8hlj-giOu98bY6Yxx7iEMFQVFoGr/view?usp=sharing 
 
 The notebook expects to be run with this project folder as its working directory. It uses the image and model paths shown above.
 
