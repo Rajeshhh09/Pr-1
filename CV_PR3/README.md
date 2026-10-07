@@ -12,6 +12,7 @@ A hands-on computer vision project that starts with simple image operations and 
 4. **Object detection with YOLOv8** — detect common objects in photos, explore confidence and IoU thresholds, and try live webcam detection.
 5. **Combined pipeline and comparison** — run YuNet and YOLOv8 together, compare their speed, and summarize the techniques.
 
+
 ## Project files
 
 ```text
@@ -38,6 +39,8 @@ CV_PR3/
     ├── yolo_class_summary.png
     └── yolo_detections.png
 ```
+
+** Video Link :- https://drive.google.com/file/d/1Kizy8hlj-giOu98bY6Yxx7iEMFQVFoGr/view?usp=sharing **
 
 The notebook expects to be run with this project folder as its working directory. It uses the image and model paths shown above.
 
