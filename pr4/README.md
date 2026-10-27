@@ -11,7 +11,8 @@ residual-block example.
 
 | File | Description |
 | --- | --- |
-| [`pr4.ipynb`](./pr4.ipynb) | The complete, executable notebook, including explanations, code, visualizations, training, and evaluation. |
+Video Link :- https://drive.google.com/file/d/1HYD7H8auptV9xWH9vlluY6ERNEEq_N7w/view?usp=sharing
+| [`pr4.ipynb`](./pr4.ipynb) | The complete, executable notebook, including explanations, code, visualizations, training, and evaluation.|
 
 All plots are displayed in the notebook. The notebook does not require
 separate project data files; Keras downloads CIFAR-10 on first use. The
